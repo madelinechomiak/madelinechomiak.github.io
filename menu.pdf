@@ -1,0 +1,189 @@
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from textwrap import wrap
+
+
+brand = "KHANNA · Healthy Catering Services"
+tagline = "Wholesome, customizable catering for every occasion."
+
+sections = [
+    {
+        "title": "Signature Salads",
+        "items": [
+            ("Mediterranean Crunch", "Romaine, cucumber, cherry tomato, kalamata olives, chickpeas, feta, lemon-oregano vinaigrette", 12),
+            ("Super Greens Caesar", "Baby kale, romaine, shaved parmesan, whole-grain croutons, Greek yogurt caesar", 11),
+            ("Harvest Quinoa", "Arugula, roasted sweet potato, quinoa, dried cranberries, pepitas, maple-mustard dressing", 13),
+        ],
+        "notes": "Add-ons: grilled chicken +4 · salmon +6 · tofu +3"
+    },
+    {
+        "title": "Bowls & Plates",
+        "items": [
+            ("Build-Your-Own Bowl", "Brown rice or quinoa, 1 protein, 3 toppings, 1 sauce", 14),
+            ("Teriyaki Power Bowl", "Grilled chicken, broccoli, carrots, brown rice, sesame seeds, scallions, house teriyaki", 15),
+            ("Roasted Veggie Mezze", "Za’atar cauliflower, eggplant, hummus, tabbouleh, cucumber-tomato salad, lemon tahini", 14),
+        ],
+        "notes": "Proteins: grilled chicken, tofu, falafel, salmon (+2) · Sauces: lemon tahini, chimichurri, spicy harissa, herb yogurt"
+    },
+    {
+        "title": "High-Protein Meal Prep Boxes",
+        "items": [
+            ("Lemon Herb Chicken", "Grilled chicken breast, garlicky green beans, rosemary potatoes", 13),
+            ("Chimichurri Steak", "Flank steak, roasted peppers & onions, quinoa pilaf", 16),
+            ("Sesame Tofu", "Baked tofu, bok choy, carrots, brown rice, ginger-scallion dressing", 12),
+        ],
+        "notes": "Balanced macros • Delivered chilled • Reheats in 2–3 minutes"
+    },
+    {
+        "title": "Breakfast & Brunch",
+        "items": [
+            ("Greek Yogurt Parfaits", "House granola, seasonal fruit, local honey", 6),
+            ("Egg White Frittata Bites", "Spinach, roasted pepper, cheddar", 5),
+            ("Whole-Grain Pastry Assortment", "Muffins & croissants with butter & jam", 5),
+            ("Fresh Fruit Platter", "Chef’s seasonal selection", 4),
+        ],
+        "notes": "Coffee & tea service available · Non-dairy options upon request"
+    },
+    {
+        "title": "Sides & Snacks",
+        "items": [
+            ("Crudité & Hummus", "Colorful vegetables, classic & roasted red pepper hummus", 6),
+            ("Whole-Grain Wrap Halves", "Turkey avocado, roasted veggie pesto, chicken Caesar", 8),
+            ("Energy Bites", "Oats, peanut butter, chia, dark chocolate", 4),
+        ],
+        "notes": "Perfect for meetings and mid-day fuel"
+    },
+    {
+        "title": "Cold-Pressed Juices & Beverages",
+        "items": [
+            ("Green Glow", "Kale, apple, cucumber, lemon, mint", 6),
+            ("Citrus Boost", "Orange, carrot, ginger, turmeric", 6),
+            ("Berry Antioxidant", "Blueberry, strawberry, beet, lemon", 6),
+            ("Infused Waters", "Cucumber-mint · lemon-lime · orange-basil", 3),
+        ],
+        "notes": "Ask about zero-added-sugar options"
+    },
+    {
+        "title": "Popular Packages (Per Guest)",
+        "items": [
+            ("Build-Your-Own Bowl Bar", "Base, 2 proteins, 6 toppings, 2 sauces, greens & grains", 18),
+            ("Salad & Wrap Spread", "Two signature salads, assorted wrap halves, fruit platter", 16),
+            ("Wellness Break", "Crudité & hummus, energy bites, infused waters", 12),
+        ],
+        "notes": "Minimum 10 guests · Compostable serveware included"
+    },
+    {
+        "title": "Dietary & Sourcing",
+        "items": [
+            ("Dietary Keys", "V = Vegetarian · VG = Vegan · GF = Gluten-Free · DF = Dairy-Free", None),
+            ("Allergens", "Please notify us of any allergies; we practice careful cross-contact prevention.", None),
+            ("Sourcing", "Seasonal produce, whole grains, and lean proteins from trusted partners.", None),
+        ],
+        "notes": "Custom menus available for corporate events, weddings, and campus groups."
+    },
+    {
+        "title": "Ordering & Contact",
+        "items": [
+            ("Lead Time", "24–48 hours preferred · Rush orders may be accommodated", None),
+            ("Delivery", "Greater Indianapolis · On-site setup available", None),
+            ("Contact", "mchomiak@purdue.edu · (303) 515-1124", None),
+            ("Web", "Scan the QR on your quote or visit our site to finalize details.", None),
+        ],
+        "notes": "Prices subject to change · Tax & delivery calculated at checkout"
+    },
+]
+
+PAGE_SIZE = (8.5, 11)  # inches
+LEFT = 0.6
+RIGHT = 8.5 - 0.6
+TOP = 10.4
+BOTTOM = 0.7
+LINE = 0.28  # line height in inches
+
+def add_title(fig, brand, tagline):
+    fig.text(0.5, 0.94, brand, ha='center', va='center', fontsize=20, fontweight='bold')
+    fig.text(0.5, 0.91, tagline, ha='center', va='center', fontsize=11)
+
+def add_footer(fig, text="Menu · © KHANNA Healthy Catering Services"):
+    fig.text(0.5, 0.03, text, ha='center', va='center', fontsize=9)
+
+def draw_section(ax, x, y, title, items, notes=None, col_width=3.6):
+    # Section title
+    ax.text(x, y, title, fontsize=14, fontweight='bold', va='top')
+    y -= LINE * 1.2
+
+    price_col = x + col_width - 0.1
+    for name, desc, price in items:
+        # Name + price line
+        if price is not None:
+            ax.text(x, y, name, fontsize=11, fontweight='bold', va='top')
+            ax.text(price_col, y, f"${price}", fontsize=11, ha='right', va='top')
+        else:
+            ax.text(x, y, name, fontsize=11, fontweight='bold', va='top')
+        y -= LINE
+
+       
+        if desc:
+            wrapped = "\n".join(wrap(desc, width=60))
+            ax.text(x, y, wrapped, fontsize=10, va='top')
+            # count wrapped lines to move y
+            lines = wrapped.count("\n") + 1
+            y -= LINE * (lines + 0.4)
+        else:
+            y -= LINE * 0.3
+
+        y -= LINE * 0.2
+
+    if notes:
+        wrapped_notes = "\n".join(wrap(notes, width=65))
+        ax.text(x, y, wrapped_notes, fontsize=9, style='italic', va='top')
+        lines = wrapped_notes.count("\n") + 1
+        y -= LINE * (lines + 0.6)
+    return y
+
+pdf_path = "/mnt/data/menu.pdf"
+with PdfPages(pdf_path) as pdf:
+   
+    fig = plt.figure(figsize=PAGE_SIZE)
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.axis("off")
+    add_title(fig, brand, tagline)
+    fig.text(0.5, 0.55, "Full Catering Menu", ha='center', va='center', fontsize=26, fontweight='bold')
+    fig.text(0.5, 0.5, "Wholesome, vibrant, and customizable options for teams,\ncelebrations, and every day in between.", ha='center', va='center', fontsize=12)
+    add_footer(fig)
+    pdf.savefig(fig, bbox_inches='tight')
+    plt.close(fig)
+
+ 
+    col_width = (RIGHT - LEFT) / 2 - 0.3
+
+
+    idx = 0
+    while idx < len(sections):
+        fig = plt.figure(figsize=PAGE_SIZE)
+        ax = fig.add_axes([0, 0, 1, 1])
+        ax.axis("off")
+        add_title(fig, brand, tagline)
+
+        x_left = LEFT
+        x_right = LEFT + col_width + 0.6
+        y_left = TOP
+        y_right = TOP
+        # Fill columns top-down, left then right
+        for _ in range(6):  # up to 6 sections per page in two columns (adaptive)
+            if idx >= len(sections):
+                break
+            sec = sections[idx]
+            # choose the taller column position
+            if y_left >= y_right:
+                y_left = draw_section(ax, x_left, y_left, sec["title"], sec["items"], sec.get("notes"), col_width=col_width)
+            else:
+                y_right = draw_section(ax, x_right, y_right, sec["title"], sec["items"], sec.get("notes"), col_width=col_width)
+            idx += 1
+
+        add_footer(fig)
+        pdf.savefig(fig, bbox_inches='tight')
+        plt.close(fig)
+
+
+pdf_path
